@@ -1,0 +1,60 @@
+run:
+  concurrency: 8
+  timeout: 10m
+  issues-exit-code: 1
+  tests: true
+
+output:
+  formats:
+    - format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters-settings:
+  dupl:
+    threshold: 100
+  goconst:
+    min-len: 2
+    min-occurrences: 2
+  revive:
+    rules:
+      - name: exported
+        disabled: true
+  govet: {} 
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - goconst
+    - goimports
+    - gosec
+    - govet
+    - ineffassign
+    - revive
+    - typecheck
+    - unused
+
+issues:
+  exclude-use-default: false
+  exclude-files:
+    - \.pb\.go$
+    - \.pb\.gw\.go$
+    - mock_.*\.go$
+  exclude-dirs:
+    - bin
+    - vendor
+    - var
+    - tmp
+    - .cache
+    - internal/repository/mocks
+    - internal/service/mocks
+  exclude:
+    - G104
+    - G112
+    - exported func .* returns unexported type .*
+    - should have a package comment
+    - don't use an underscore in package name
+    - Error return value of .*json.*Encoder.*Encode.* is not checked
+    - string `.*` has .* occurrences, make it a constant
+
