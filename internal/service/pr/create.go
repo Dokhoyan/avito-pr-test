@@ -100,7 +100,10 @@ func (s *serv) autoAssignReviewers(ctx context.Context, author *model.User) ([]s
 		candidates[i], candidates[j] = candidates[j], candidates[i]
 	}
 
-	maxReviewers := min(2, len(candidates))
+	maxReviewers := 2
+	if len(candidates) < maxReviewers {
+		maxReviewers = len(candidates)
+	}
 	reviewerIDs := make([]string, 0, maxReviewers)
 
 	for i := 0; i < maxReviewers; i++ {

@@ -34,7 +34,7 @@ clean:
 	rm -f cover.out
 
 mock:
-	mockery
+	mockery --config config/.mockery.yaml
 	
 help:
 	@echo "Available targets:"

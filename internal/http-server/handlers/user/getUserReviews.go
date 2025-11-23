@@ -24,7 +24,7 @@ func (i *Implementation) GetReview(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(model.ErrorResponse{
+		_ = json.NewEncoder(w).Encode(model.ErrorResponse{
 
 			Error: model.ErrorBody{
 				Code:    model.ErrorBadRequest,
@@ -43,7 +43,7 @@ func (i *Implementation) GetReview(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(model.ErrorResponse{
+		_ = json.NewEncoder(w).Encode(model.ErrorResponse{
 
 			Error: model.ErrorBody{
 				Code:    model.ErrorBadRequest,
@@ -67,7 +67,7 @@ func (i *Implementation) GetReview(w http.ResponseWriter, r *http.Request) {
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusNotFound)
-			json.NewEncoder(w).Encode(model.ErrorResponse{
+			_ = json.NewEncoder(w).Encode(model.ErrorResponse{
 				Error: model.ErrorBody{
 					Code:    model.ErrorNotFound,
 					Message: "resource not found",
@@ -81,7 +81,7 @@ func (i *Implementation) GetReview(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(model.ErrorResponse{
+		_ = json.NewEncoder(w).Encode(model.ErrorResponse{
 
 			Error: model.ErrorBody{
 				Code:    model.ErrorInternal,
@@ -93,7 +93,7 @@ func (i *Implementation) GetReview(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	_ = json.NewEncoder(w).Encode(map[string]interface{}{
 		"user_id":       req.UserID,
 		"pull_requests": reviews,
 	})

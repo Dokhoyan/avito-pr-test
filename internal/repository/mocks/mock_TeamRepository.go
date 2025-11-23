@@ -194,7 +194,7 @@ func NewMockTeamRepository(t interface {
 	mock := &MockTeamRepository{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() { mock.Mock.AssertExpectations(t) })
 
 	return mock
 }

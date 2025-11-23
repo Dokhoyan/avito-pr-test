@@ -9,7 +9,6 @@ const (
 	dsnEnvName = "PG_DSN"
 )
 
-
 type pgConfig struct {
 	dsn string
 }

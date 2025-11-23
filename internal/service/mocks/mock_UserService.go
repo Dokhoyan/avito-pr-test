@@ -150,7 +150,7 @@ func NewMockUserService(t interface {
 	mock := &MockUserService{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() { mock.Mock.AssertExpectations(t) })
 
 	return mock
 }

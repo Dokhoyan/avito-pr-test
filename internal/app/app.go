@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"sync"
+	"time"
 
 	"github.com/Dokhoyan/avito-pr-test/internal/config"
 	"github.com/Dokhoyan/avito-pr-test/internal/http-server/middleware"
@@ -123,8 +124,9 @@ func (a *App) initHTTPServer(ctx context.Context) error {
 	// Создание HTTP сервера с конфигурацией
 	httpConfig := a.serviceProvider.HTTPConfig()
 	a.httpServer = &http.Server{
-		Addr:    httpConfig.Address(),
-		Handler: handler,
+		Addr:              httpConfig.Address(),
+		Handler:           handler,
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 
 	return nil
@@ -157,6 +159,7 @@ func (a *App) getCore(level zap.AtomicLevel) zapcore.Core {
 		MaxSize:    loggerMaxSize, //mb
 		MaxBackups: loggerMaxBackups,
 		MaxAge:     loggerMaxAge,
+		Compress:   false,
 	})
 
 	productionCfg := zap.NewProductionEncoderConfig()

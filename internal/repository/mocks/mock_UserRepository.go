@@ -320,7 +320,7 @@ func NewMockUserRepository(t interface {
 	mock := &MockUserRepository{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() { mock.Mock.AssertExpectations(t) })
 
 	return mock
 }

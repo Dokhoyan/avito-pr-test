@@ -89,7 +89,7 @@ func NewMockStatsService(t interface {
 	mock := &MockStatsService{}
 	mock.Mock.Test(t)
 
-	t.Cleanup(func() { mock.AssertExpectations(t) })
+	t.Cleanup(func() { mock.Mock.AssertExpectations(t) })
 
 	return mock
 }

@@ -39,27 +39,27 @@ func Fatal(msg string, fields ...zap.Field) {
 	globalLogger.Fatal(msg, fields...)
 }
 
-// Debugf - инкапсуляциия логгера для метода Debug c форматированием 
+// Debugf - инкапсуляциия логгера для метода Debug c форматированием
 func Debugf(format string, args ...interface{}) {
 	globalLogger.Debug(fmt.Sprintf(format, args...))
 }
 
-// Infof - инкапсуляциия логгера для метода Info c форматированием 
+// Infof - инкапсуляциия логгера для метода Info c форматированием
 func Infof(format string, args ...interface{}) {
 	globalLogger.Info(fmt.Sprintf(format, args...))
 }
 
-// Warnf - инкапсуляциия логгера для метода Warn c форматированием 
+// Warnf - инкапсуляциия логгера для метода Warn c форматированием
 func Warnf(format string, args ...interface{}) {
 	globalLogger.Warn(fmt.Sprintf(format, args...))
 }
 
-// Errorf - инкапсуляциия логгера для метода Error c форматированием 
+// Errorf - инкапсуляциия логгера для метода Error c форматированием
 func Errorf(format string, args ...interface{}) {
 	globalLogger.Error(fmt.Sprintf(format, args...))
 }
 
-// Fatalf - инкапсуляциия логгера для метода Fatal c форматированием 
+// Fatalf - инкапсуляциия логгера для метода Fatal c форматированием
 func Fatalf(format string, args ...interface{}) {
 	globalLogger.Fatal(fmt.Sprintf(format, args...))
 }

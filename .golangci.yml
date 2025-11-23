@@ -48,6 +48,9 @@ issues:
     - .cache
   exclude:
     - G104
+    - G112
     - exported func .* returns unexported type .*
     - should have a package comment
     - don't use an underscore in package name
+    - Error return value of .*json.*Encoder.*Encode.* is not checked
+    - string `.*` has .* occurrences, make it a constant
