@@ -4,4 +4,7 @@
 .DS_Store
 .bin
 bin/
-cover.out
+coverage.out
+loadtest/results.json
+loadtest/summary.json
+loadtest/summary.html
