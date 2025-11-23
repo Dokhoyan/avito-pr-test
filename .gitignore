@@ -1,2 +1,11 @@
 .env
 .idea
+/logs
+.DS_Store
+.bin
+bin/
+*.log
+test_*.sh
+final_test.sh
+API_TEST_RESULTS.md
+/tmp

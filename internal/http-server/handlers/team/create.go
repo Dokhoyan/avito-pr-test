@@ -30,7 +30,6 @@ func (i *Implementation) CreateTeam(w http.ResponseWriter, r *http.Request) {
 			Error: model.ErrorBody{
 				Code:    model.ErrorBadRequest,
 				Message: "Method not allowed",
-
 			},
 		})
 		return
@@ -52,7 +51,6 @@ func (i *Implementation) CreateTeam(w http.ResponseWriter, r *http.Request) {
 				Code:    model.ErrorBadRequest,
 				Message: "Invalid request payload",
 			},
-
 		})
 
 		return
@@ -61,7 +59,7 @@ func (i *Implementation) CreateTeam(w http.ResponseWriter, r *http.Request) {
 	logger.Info("creating team",
 		zap.String("team_name", req.TeamName),
 		zap.Int("members_count", len(req.Members)))
-	
+
 	team, err := i.teamService.CreateTeamWithMembers(r.Context(), req.TeamName, req.Members)
 	if err != nil {
 		if errors.Is(err, service.ErrTeamExists) {
@@ -69,7 +67,7 @@ func (i *Implementation) CreateTeam(w http.ResponseWriter, r *http.Request) {
 			logger.Warn("team already exists",
 				zap.String("team_name", req.TeamName),
 				zap.Error(err))
-		
+
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(model.ErrorResponse{
@@ -77,7 +75,6 @@ func (i *Implementation) CreateTeam(w http.ResponseWriter, r *http.Request) {
 				Error: model.ErrorBody{
 					Code:    model.ErrorTeamExists,
 					Message: "team_name already exists",
-
 				}})
 
 			return
@@ -85,7 +82,7 @@ func (i *Implementation) CreateTeam(w http.ResponseWriter, r *http.Request) {
 		logger.Error("internal server error while creating team",
 			zap.String("team_name", req.TeamName),
 			zap.Error(err))
-		
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(model.ErrorResponse{
@@ -93,16 +90,13 @@ func (i *Implementation) CreateTeam(w http.ResponseWriter, r *http.Request) {
 			Error: model.ErrorBody{
 				Code:    model.ErrorInternal,
 				Message: "Internal server error",
-
 			}})
 
 		return
 	}
 
-	
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
-	
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"team": team,
 	})

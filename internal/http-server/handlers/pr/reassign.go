@@ -107,6 +107,21 @@ func (i *Implementation) Reassign(w http.ResponseWriter, r *http.Request) {
 					Message: "cannot reassign on merged PR",
 				},
 			})
+		case errors.Is(err, service.ErrNoReviewers):
+
+			logger.Warn("no available reviewers in team",
+				zap.String("pull_request_id", req.PullRequestID),
+				zap.Error(err))
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusConflict)
+			json.NewEncoder(w).Encode(model.ErrorResponse{
+
+				Error: model.ErrorBody{
+					Code:    model.ErrorBadRequest,
+					Message: "no available reviewers in team",
+				},
+			})
 		case errors.Is(err, service.ErrNotAssigned):
 
 			logger.Warn("reviewer is not assigned to this PR",

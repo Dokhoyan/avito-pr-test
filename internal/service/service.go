@@ -24,3 +24,18 @@ type TeamService interface {
 	CreateTeamWithMembers(ctx context.Context, teamName string, members []model.TeamMember) (*model.Team, error)
 	GetTeam(ctx context.Context, teamName string) (*model.Team, error)
 }
+
+type UserService interface {
+	UpdateUserStatus(ctx context.Context, userID string, isActive bool) (*model.User, error)
+	GetUserReviews(ctx context.Context, userID string) ([]*model.PullRequestShort, error)
+}
+
+type PRService interface {
+	CreatePR(ctx context.Context, prID string, prName string, authorID string) (*model.PullRequest, error)
+	MergePR(ctx context.Context, prID string) (*model.PullRequest, error)
+	ReassignReviewer(ctx context.Context, pullRequestID, oldUserID string) (*model.PullRequest, string, error)
+}
+
+type StatsService interface {
+	GetStats(ctx context.Context) (*model.Stats, error)
+}

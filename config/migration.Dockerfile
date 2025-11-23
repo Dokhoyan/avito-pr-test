@@ -10,9 +10,8 @@ RUN chmod +x /bin/goose
 
 WORKDIR /root
 
-COPY internal/migrations/*.sql migrations/
-COPY config/prod/migration.sh .
-COPY config/prod/.env .
+COPY migrations/*.sql migrations/
+COPY config/migration.sh .
 
 RUN chmod +x migration.sh
 

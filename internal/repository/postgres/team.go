@@ -53,8 +53,6 @@ func (r *Repository) TeamExists(ctx context.Context, name string) (bool, error) 
 }
 
 func (r *Repository) GetTeamWithMembers(ctx context.Context, name string) (*model.Team, error) {
-	conn := r.db
-
 	exists, err := r.TeamExists(ctx, name)
 	if err != nil {
 		return nil, fmt.Errorf("failed to check team existence: %w", err)
@@ -64,11 +62,13 @@ func (r *Repository) GetTeamWithMembers(ctx context.Context, name string) (*mode
 		return nil, ErrTeamNotFound
 	}
 
-	builder := sq.Select("user_id", "username", "is_active").
+	builder := sq.Select("id", "username", "is_active").
 		PlaceholderFormat(sq.Dollar).
 		From("users").
 		Where(sq.Eq{"team_name": name}).
 		OrderBy("username")
+
+	conn := r.getConn(ctx)
 
 	query, args, err := builder.ToSql()
 	if err != nil {

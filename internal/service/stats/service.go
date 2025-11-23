@@ -11,7 +11,7 @@ type serv struct {
 	repo repository.StatsRepository
 }
 
-func NewStatsService(repo repository.StatsRepository, tr *manager.Manager) service.StatsService {
+func NewService(repo repository.StatsRepository, tr *manager.Manager) service.StatsService {
 	return &serv{
 		tr:   tr,
 		repo: repo,

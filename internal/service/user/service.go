@@ -11,7 +11,7 @@ type serv struct {
 	trManager *manager.Manager
 }
 
-func NewUserService(userRepo repository.UserRepository, trManager *manager.Manager) service.UserService {
+func NewService(userRepo repository.UserRepository, trManager *manager.Manager) service.UserService {
 	return &serv{
 		userRepo:  userRepo,
 		trManager: trManager,

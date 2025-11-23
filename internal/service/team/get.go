@@ -10,7 +10,7 @@ import (
 	"github.com/Dokhoyan/avito-pr-test/internal/service"
 )
 
-func (s *TeamService) GetTeam(ctx context.Context, teamName string) (*model.Team, error) {
+func (s *serv) GetTeam(ctx context.Context, teamName string) (*model.Team, error) {
 	if teamName == "" {
 		return nil, errors.New("team name cant be empty")
 	}

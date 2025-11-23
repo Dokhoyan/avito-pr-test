@@ -13,9 +13,9 @@ import (
 func (r *Repository) CreateOrUpdateUser(ctx context.Context, user model.TeamMember, teamID string) error {
 	builder := sq.Insert("users").
 		PlaceholderFormat(sq.Dollar).
-		Columns("user_id", "username", "team_name", "is_active", "created_at", "updated_at").
+		Columns("id", "username", "team_name", "is_active", "created_at", "updated_at").
 		Values(user.UserID, user.Username, teamID, user.IsActive, sq.Expr("NOW()"), sq.Expr("NOW()")).
-		Suffix("ON CONFLICT (user_id) DO UPDATE SET username = EXCLUDED.username, team_name = EXCLUDED.team_name, is_active = EXCLUDED.is_active, updated_at = NOW()")
+		Suffix("ON CONFLICT (id) DO UPDATE SET username = EXCLUDED.username, team_name = EXCLUDED.team_name, is_active = EXCLUDED.is_active, updated_at = NOW()")
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -37,7 +37,7 @@ func (r *Repository) UpdateIsActiveStatus(ctx context.Context, userID string, is
 		PlaceholderFormat(sq.Dollar).
 		Set("is_active", isActive).
 		Set("updated_at", sq.Expr("NOW()")).
-		Where(sq.Eq{"user_id": userID})
+		Where(sq.Eq{"id": userID})
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -59,10 +59,10 @@ func (r *Repository) UpdateIsActiveStatus(ctx context.Context, userID string, is
 }
 
 func (r *Repository) GetUserByID(ctx context.Context, userID string) (*model.User, error) {
-	builder := sq.Select("user_id", "username", "team_name", "is_active").
+	builder := sq.Select("id", "username", "team_name", "is_active").
 		PlaceholderFormat(sq.Dollar).
 		From("users").
-		Where(sq.Eq{"user_id": userID})
+		Where(sq.Eq{"id": userID})
 
 	query, args, err := builder.ToSql()
 	if err != nil {
@@ -86,7 +86,7 @@ func (r *Repository) GetUserByID(ctx context.Context, userID string) (*model.Use
 }
 
 func (r *Repository) GetActiveTeamMembers(ctx context.Context, teamID, authorID string, excludeIDs ...string) ([]*model.User, error) {
-	builder := sq.Select("user_id", "username", "team_name", "is_active").
+	builder := sq.Select("id", "username", "team_name", "is_active").
 		PlaceholderFormat(sq.Dollar).
 		From("users").
 		Where(sq.Eq{"team_name": teamID, "is_active": true})
@@ -100,10 +100,10 @@ func (r *Repository) GetActiveTeamMembers(ctx context.Context, teamID, authorID 
 		for i, id := range excludeIDs {
 			interfaceIDs[i] = id
 		}
-		builder = builder.Where(sq.Expr("user_id NOT IN ("+sq.Placeholders(len(excludeIDs))+")", interfaceIDs...))
+		builder = builder.Where(sq.Expr("id NOT IN ("+sq.Placeholders(len(excludeIDs))+")", interfaceIDs...))
 	}
 
-	builder = builder.OrderBy("user_id")
+	builder = builder.OrderBy("id")
 
 	query, args, err := builder.ToSql()
 	if err != nil {

@@ -13,7 +13,7 @@ type serv struct {
 	prRepo    repository.PRRepository
 }
 
-func NewPRService(teamRepository repository.TeamRepository, userRepository repository.UserRepository, pRRepository repository.PRRepository, trManager *manager.Manager) service.PRService {
+func NewService(teamRepository repository.TeamRepository, userRepository repository.UserRepository, pRRepository repository.PRRepository, trManager *manager.Manager) service.PRService {
 	return &serv{
 		trManager: trManager,
 		teamRepo:  teamRepository,

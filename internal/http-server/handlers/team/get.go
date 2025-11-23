@@ -1,7 +1,7 @@
 package team
 
 import (
-	"encoding/json" 
+	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -12,7 +12,7 @@ import (
 )
 
 type GetTeamRequest struct {
-	TeamName string 
+	TeamName string
 }
 
 func (i *Implementation) GetTeam(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +29,6 @@ func (i *Implementation) GetTeam(w http.ResponseWriter, r *http.Request) {
 			Error: model.ErrorBody{
 				Code:    model.ErrorBadRequest,
 				Message: "Method not allowed",
-
 			},
 		})
 		return
@@ -41,7 +40,7 @@ func (i *Implementation) GetTeam(w http.ResponseWriter, r *http.Request) {
 	if req.TeamName == "" {
 		logger.Warn("invalid request payload for Get Team",
 			zap.String("method", "GetTeam"))
-		
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(model.ErrorResponse{
@@ -49,7 +48,6 @@ func (i *Implementation) GetTeam(w http.ResponseWriter, r *http.Request) {
 			Error: model.ErrorBody{
 				Code:    model.ErrorBadRequest,
 				Message: "Invalid request payload",
-
 			},
 		})
 
@@ -59,7 +57,6 @@ func (i *Implementation) GetTeam(w http.ResponseWriter, r *http.Request) {
 	logger.Info("getting team",
 		zap.String("team_name", req.TeamName))
 
-
 	team, err := i.teamService.GetTeam(r.Context(), req.TeamName)
 	if err != nil {
 		if errors.Is(err, service.ErrTeamNotFound) {
@@ -67,7 +64,7 @@ func (i *Implementation) GetTeam(w http.ResponseWriter, r *http.Request) {
 			logger.Warn("team not found",
 				zap.String("team_name", req.TeamName),
 				zap.Error(err))
-			
+
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusNotFound)
 			json.NewEncoder(w).Encode(model.ErrorResponse{
@@ -81,7 +78,7 @@ func (i *Implementation) GetTeam(w http.ResponseWriter, r *http.Request) {
 		logger.Error("internal server error while getting team",
 			zap.String("team_name", req.TeamName),
 			zap.Error(err))
-		
+
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(model.ErrorResponse{
@@ -89,13 +86,11 @@ func (i *Implementation) GetTeam(w http.ResponseWriter, r *http.Request) {
 			Error: model.ErrorBody{
 				Code:    model.ErrorInternal,
 				Message: "Internal server error",
-				
 			}})
 
 		return
 	}
 
-	
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(team)

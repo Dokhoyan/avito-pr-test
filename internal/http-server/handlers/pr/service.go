@@ -10,7 +10,7 @@ type Implementation struct {
 	s service.PRService
 }
 
-func NewPRHandler(s service.PRService) *Implementation {
+func NewImplementation(s service.PRService) *Implementation {
 	return &Implementation{
 		s: s,
 	}

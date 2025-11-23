@@ -10,7 +10,7 @@ type Implementation struct {
 	s service.StatsService
 }
 
-func NewStatsHandler(s service.StatsService) *Implementation {
+func NewImplementation(s service.StatsService) *Implementation {
 	return &Implementation{s: s}
 }
 

@@ -10,7 +10,7 @@ type Implementation struct {
 	s service.UserService
 }
 
-func NewHandler(s service.UserService) *Implementation {
+func NewImplementation(s service.UserService) *Implementation {
 	return &Implementation{
 		s: s,
 	}
@@ -22,5 +22,3 @@ func (i *Implementation) RegisterRoutes(mux *http.ServeMux) {
 }
 
 
-//# Коммит
-//git commit -m "feat: implement user handlers, service and repository with net/http and squirrel"
