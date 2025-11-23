@@ -1,8 +1,49 @@
-include .env
-LOCAL_BIN:=$(CURDIR)/bin
+TEST_FLAGS ?= -v -race -parallel 5 -shuffle=on
+COVER_FLAGS ?= -coverprofile=./cover.out -covermode=atomic -coverpkg=./...
+BINARY_NAME ?= bin/app
 
-install-deps:
-	GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@v3.20.0
+.PHONY: docker-up docker-clean test lint deps build clean mock docker-build
+.DEFAULT_GOAL := help
 
-migrate:
-	bin/goose -dir ./migrations create $(name) sql
+docker-up:
+	docker compose up -d
+
+docker-build:
+	docker compose build
+
+docker-clean:
+	docker compose down
+	docker image prune -f
+
+test:
+	go test $(TEST_FLAGS) $(COVER_FLAGS) ./...
+
+lint:
+	golangci-lint run ./...
+
+deps:
+	go mod download
+	go mod verify
+	go mod tidy
+
+build: deps
+	go build -o $(BINARY_NAME) ./cmd/app
+
+clean:
+	rm -rf bin/
+	rm -f cover.out
+
+mock:
+	mockery
+	
+help:
+	@echo "Available targets:"
+	@echo "  docker-up    - Start docker containers"
+	@echo "  docker-clean - Clean docker containers and images"
+	@echo "  docker-build - Build docker images"
+	@echo "  test        - Run tests with race detection and coverage"
+	@echo "  lint        - Run golangci-lint"
+	@echo "  deps        - Download dependencies"
+	@echo "  build       - Build application"
+	@echo "  clean       - Clean build artifacts"
+	@echo "  mock        - Generate mocks using mockery with config"

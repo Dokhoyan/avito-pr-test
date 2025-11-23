@@ -7,13 +7,17 @@ import (
 )
 
 type serv struct {
-	trManager *manager.Manager
+	trManager service.TrManager
 	teamRepo  repository.TeamRepository
 	userRepo  repository.UserRepository
 	prRepo    repository.PRRepository
 }
 
 func NewService(teamRepository repository.TeamRepository, userRepository repository.UserRepository, pRRepository repository.PRRepository, trManager *manager.Manager) service.PRService {
+	return NewServiceWithTrManager(teamRepository, userRepository, pRRepository, service.NewManagerAdapter(trManager))
+}
+
+func NewServiceWithTrManager(teamRepository repository.TeamRepository, userRepository repository.UserRepository, pRRepository repository.PRRepository, trManager service.TrManager) service.PRService {
 	return &serv{
 		trManager: trManager,
 		teamRepo:  teamRepository,

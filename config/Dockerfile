@@ -18,11 +18,11 @@ COPY go.mod go.sum ./
 # Скачиваем необходимые Go модули (зависимости нашего проетка)
 RUN go mod download
 
-# Копируем все исходные go файлы нашего проекта в образ
+# Копируем всю структуру проекта в образ
 # https://docs.docker.com/reference/dockerfile/#copy
-COPY *.go ./
+COPY . .
 # Собираем бинарный файл нашего приложения
-RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/main
+RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/main ./cmd/http-server
 
 #######################################
 # STAGE 2. FINAL STAGE

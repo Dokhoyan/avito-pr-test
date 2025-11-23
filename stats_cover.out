@@ -1,0 +1,16 @@
+mode: atomic
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/get.go:9.68,12.54 2 5
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/get.go:12.54,14.17 2 5
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/get.go:14.17,16.4 1 1
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/get.go:18.3,19.17 2 4
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/get.go:19.17,21.4 1 1
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/get.go:23.3,24.17 2 3
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/get.go:24.17,26.4 1 1
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/get.go:28.3,29.17 2 2
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/get.go:29.17,31.4 1 1
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/get.go:33.3,43.13 2 1
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/get.go:45.2,45.16 1 5
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/get.go:45.16,47.3 1 4
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/get.go:49.2,49.19 1 1
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/service.go:14.92,16.2 1 0
+github.com/Dokhoyan/avito-pr-test/internal/service/stats/service.go:18.106,23.2 1 5

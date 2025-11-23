@@ -8,10 +8,14 @@ import (
 
 type serv struct {
 	userRepo  repository.UserRepository
-	trManager *manager.Manager
+	trManager service.TrManager
 }
 
 func NewService(userRepo repository.UserRepository, trManager *manager.Manager) service.UserService {
+	return NewServiceWithTrManager(userRepo, service.NewManagerAdapter(trManager))
+}
+
+func NewServiceWithTrManager(userRepo repository.UserRepository, trManager service.TrManager) service.UserService {
 	return &serv{
 		userRepo:  userRepo,
 		trManager: trManager,

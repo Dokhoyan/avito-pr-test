@@ -1,0 +1,35 @@
+with-expecter: true
+dir: "internal"
+packages:
+  github.com/Dokhoyan/avito-pr-test/internal/service:
+    interfaces:
+      TeamService:
+        config:
+          dir: "internal/service/mocks"
+      UserService:
+        config:
+          dir: "internal/service/mocks"
+      PRService:
+        config:
+          dir: "internal/service/mocks"
+      StatsService:
+        config:
+          dir: "internal/service/mocks"
+      TrManager:
+        config:
+          dir: "internal/service/mocks"
+  github.com/Dokhoyan/avito-pr-test/internal/repository:
+    interfaces:
+      TeamRepository:
+        config:
+          dir: "internal/repository/mocks"
+      UserRepository:
+        config:
+          dir: "internal/repository/mocks"
+      PRRepository:
+        config:
+          dir: "internal/repository/mocks"
+      StatsRepository:
+        config:
+          dir: "internal/repository/mocks"
+
