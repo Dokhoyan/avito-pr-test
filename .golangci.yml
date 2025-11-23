@@ -40,12 +40,15 @@ issues:
   exclude-files:
     - \.pb\.go$
     - \.pb\.gw\.go$
+    - mock_.*\.go$
   exclude-dirs:
     - bin
     - vendor
     - var
     - tmp
     - .cache
+    - internal/repository/mocks
+    - internal/service/mocks
   exclude:
     - G104
     - G112
