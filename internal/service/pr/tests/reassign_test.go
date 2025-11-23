@@ -9,8 +9,8 @@ import (
 	"github.com/Dokhoyan/avito-pr-test/internal/repository"
 	repomocks "github.com/Dokhoyan/avito-pr-test/internal/repository/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service"
+	servicemocks "github.com/Dokhoyan/avito-pr-test/internal/service/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service/pr"
-	"github.com/Dokhoyan/avito-pr-test/internal/service/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -52,7 +52,12 @@ func TestReassignReviewer_Success(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(existingPR, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, "author1").Return(author, nil)
@@ -79,7 +84,12 @@ func TestReassignReviewer_PRNotFound(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(nil, repository.ErrPRNotFound)
 
@@ -108,7 +118,12 @@ func TestReassignReviewer_PRMerged(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(mergedPR, nil)
 
@@ -138,7 +153,12 @@ func TestReassignReviewer_NotAssigned(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(existingPR, nil)
 
@@ -176,7 +196,12 @@ func TestReassignReviewer_NoReviewers(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(existingPR, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, "author1").Return(author, nil)
@@ -199,7 +224,12 @@ func TestReassignReviewer_EmptyFields(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	svc := pr.NewServiceWithTrManager(mockTeamRepo, mockUserRepo, mockPRRepo, mockTrManager)
 	result, newReviewerID, err := svc.ReassignReviewer(ctx, "", "reviewer1")
@@ -218,7 +248,12 @@ func TestReassignReviewer_GetPRByIDError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(nil, errors.New("database error"))
 
@@ -248,7 +283,12 @@ func TestReassignReviewer_GetAuthorError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(existingPR, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, "author1").Return(nil, errors.New("database error"))
@@ -288,7 +328,12 @@ func TestReassignReviewer_GetActiveTeamMembersError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(existingPR, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, "author1").Return(author, nil)
@@ -334,7 +379,12 @@ func TestReassignReviewer_NoCandidate(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(existingPR, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, "author1").Return(author, nil)
@@ -379,7 +429,12 @@ func TestReassignReviewer_RemoveReviewerError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(existingPR, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, "author1").Return(author, nil)
@@ -425,7 +480,12 @@ func TestReassignReviewer_AssignReviewerError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(existingPR, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, "author1").Return(author, nil)
@@ -472,7 +532,12 @@ func TestReassignReviewer_GetUpdatedPRError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	// First GetPRByID call is inside transaction
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(existingPR, nil).Once()

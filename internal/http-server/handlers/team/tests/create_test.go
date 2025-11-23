@@ -3,21 +3,29 @@ package team_test
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	teamhandler "github.com/Dokhoyan/avito-pr-test/internal/http-server/handlers/team"
-	"github.com/Dokhoyan/avito-pr-test/internal/http-server/handlers/testutil"
+	"github.com/Dokhoyan/avito-pr-test/internal/logger"
 	"github.com/Dokhoyan/avito-pr-test/internal/model"
 	"github.com/Dokhoyan/avito-pr-test/internal/service"
 	servicemocks "github.com/Dokhoyan/avito-pr-test/internal/service/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func init() {
-	testutil.InitTestLogger()
+	core := zapcore.NewCore(
+		zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
+		zapcore.AddSync(io.Discard),
+		zapcore.DebugLevel,
+	)
+	logger.Init(core)
 }
 
 func TestCreateTeam_Success(t *testing.T) {
@@ -100,5 +108,31 @@ func TestCreateTeam_TeamExists(t *testing.T) {
 
 	res := w.Result()
 	assert.Equal(t, http.StatusBadRequest, res.StatusCode)
+	mockService.AssertExpectations(t)
+}
+
+func TestCreateTeam_InternalError(t *testing.T) {
+	teamName := "test-team"
+	members := []model.TeamMember{
+		{UserID: "user1", Username: "user1", IsActive: true},
+	}
+
+	mockService := servicemocks.NewMockTeamService(t)
+	mockService.EXPECT().CreateTeamWithMembers(mock.Anything, teamName, members).Return(nil, assert.AnError)
+
+	handler := teamhandler.NewImplementation(mockService)
+
+	reqBody := map[string]interface{}{
+		"team_name": teamName,
+		"members":   members,
+	}
+	body, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(http.MethodPost, "/team/add", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+
+	handler.CreateTeam(w, req)
+
+	res := w.Result()
+	assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
 	mockService.AssertExpectations(t)
 }

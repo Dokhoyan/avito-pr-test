@@ -50,7 +50,6 @@ func NewApp(ctx context.Context) (*App, error) {
 
 func (a *App) Run(ctx context.Context) error {
 	defer func() {
-		// Закрываем HTTP сервер перед закрытием других ресурсов
 		if a.httpServer != nil {
 			shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 			defer shutdownCancel()
@@ -58,7 +57,6 @@ func (a *App) Run(ctx context.Context) error {
 				logger.Error("server shutdown error in defer", zap.Error(err))
 			}
 		}
-		// Закрываем остальные ресурсы (база данных и т.д.)
 		closer.CloseAll()
 		closer.Wait()
 	}()
@@ -85,7 +83,6 @@ func (a *App) Run(ctx context.Context) error {
 		logger.Info("server stopped")
 		return nil
 	case err := <-serverErrChan:
-		// При ошибке сервера тоже нужно корректно закрыть его
 		logger.Error("server error occurred, shutting down", zap.Error(err))
 		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer shutdownCancel()

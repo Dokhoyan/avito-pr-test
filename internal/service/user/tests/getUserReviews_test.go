@@ -9,9 +9,10 @@ import (
 	"github.com/Dokhoyan/avito-pr-test/internal/repository"
 	repomocks "github.com/Dokhoyan/avito-pr-test/internal/repository/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service"
-	"github.com/Dokhoyan/avito-pr-test/internal/service/testutil"
+	servicemocks "github.com/Dokhoyan/avito-pr-test/internal/service/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service/user"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestGetUserReviews_Success(t *testing.T) {
@@ -40,7 +41,12 @@ func TestGetUserReviews_Success(t *testing.T) {
 	}
 
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockUserRepo.EXPECT().GetUserByID(ctx, userID).Return(expectedUser, nil)
 	mockUserRepo.EXPECT().GetUserReviews(ctx, userID).Return(expectedReviews, nil)
@@ -60,7 +66,12 @@ func TestGetUserReviews_UserNotFound(t *testing.T) {
 	userID := "non-existent-user"
 
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockUserRepo.EXPECT().GetUserByID(ctx, userID).Return(nil, repository.ErrUserNotFound)
 
@@ -77,7 +88,12 @@ func TestGetUserReviews_EmptyUserID(t *testing.T) {
 	ctx := context.Background()
 
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	svc := user.NewServiceWithTrManager(mockUserRepo, mockTrManager)
 	result, err := svc.GetUserReviews(ctx, "")
@@ -98,7 +114,12 @@ func TestGetUserReviews_NoReviews(t *testing.T) {
 	}
 
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockUserRepo.EXPECT().GetUserByID(ctx, userID).Return(expectedUser, nil)
 	mockUserRepo.EXPECT().GetUserReviews(ctx, userID).Return(nil, nil)
@@ -117,7 +138,12 @@ func TestGetUserReviews_UserIsNil(t *testing.T) {
 	userID := "user1"
 
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockUserRepo.EXPECT().GetUserByID(ctx, userID).Return(nil, nil)
 
@@ -127,5 +153,58 @@ func TestGetUserReviews_UserIsNil(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, result)
 	assert.True(t, errors.Is(err, service.ErrUserNotFound))
+	mockUserRepo.AssertExpectations(t)
+}
+
+func TestGetUserReviews_GetUserError(t *testing.T) {
+	ctx := context.Background()
+	userID := "user1"
+
+	mockUserRepo := repomocks.NewMockUserRepository(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
+
+	mockUserRepo.EXPECT().GetUserByID(ctx, userID).Return(nil, errors.New("database error"))
+
+	svc := user.NewServiceWithTrManager(mockUserRepo, mockTrManager)
+	result, err := svc.GetUserReviews(ctx, userID)
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+	assert.Contains(t, err.Error(), "failed to get user")
+	mockUserRepo.AssertExpectations(t)
+}
+
+func TestGetUserReviews_GetReviewsError(t *testing.T) {
+	ctx := context.Background()
+	userID := "user1"
+
+	expectedUser := &model.User{
+		UserID:   userID,
+		Username: "user1",
+		IsActive: true,
+	}
+
+	mockUserRepo := repomocks.NewMockUserRepository(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
+
+	mockUserRepo.EXPECT().GetUserByID(ctx, userID).Return(expectedUser, nil)
+	mockUserRepo.EXPECT().GetUserReviews(ctx, userID).Return(nil, errors.New("database error"))
+
+	svc := user.NewServiceWithTrManager(mockUserRepo, mockTrManager)
+	result, err := svc.GetUserReviews(ctx, userID)
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+	assert.Contains(t, err.Error(), "failed to get user reviews")
 	mockUserRepo.AssertExpectations(t)
 }

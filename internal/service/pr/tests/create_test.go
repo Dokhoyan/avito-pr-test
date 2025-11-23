@@ -9,8 +9,8 @@ import (
 	"github.com/Dokhoyan/avito-pr-test/internal/repository"
 	repomocks "github.com/Dokhoyan/avito-pr-test/internal/repository/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service"
+	servicemocks "github.com/Dokhoyan/avito-pr-test/internal/service/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service/pr"
-	"github.com/Dokhoyan/avito-pr-test/internal/service/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -45,7 +45,12 @@ func TestCreatePR_Success(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(false, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, authorID).Return(author, nil)
@@ -76,7 +81,12 @@ func TestCreatePR_PRExists(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(true, nil)
 
@@ -95,7 +105,12 @@ func TestCreatePR_EmptyFields(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	svc := pr.NewServiceWithTrManager(mockTeamRepo, mockUserRepo, mockPRRepo, mockTrManager)
 	result, err := svc.CreatePR(ctx, "", "name", "author")
@@ -114,7 +129,12 @@ func TestCreatePR_UserNotFound(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(false, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, authorID).Return(nil, repository.ErrUserNotFound)
@@ -146,7 +166,12 @@ func TestCreatePR_UserInactive(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(false, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, authorID).Return(author, nil)
@@ -186,7 +211,12 @@ func TestCreatePR_NoReviewers(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(false, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, authorID).Return(author, nil)
@@ -215,7 +245,12 @@ func TestCreatePR_PRExistsError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(false, errors.New("database error"))
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(nil, errors.New("pr not found")).Maybe()
@@ -238,7 +273,12 @@ func TestCreatePR_GetUserError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(false, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, authorID).Return(nil, errors.New("database error"))
@@ -263,7 +303,12 @@ func TestCreatePR_UserIsNil(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(false, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, authorID).Return(nil, nil)
@@ -296,7 +341,12 @@ func TestCreatePR_TeamExistsError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(false, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, authorID).Return(author, nil)
@@ -331,7 +381,12 @@ func TestCreatePR_TeamNotFound(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(false, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, authorID).Return(author, nil)
@@ -366,7 +421,12 @@ func TestCreatePR_CreatePRError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(false, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, authorID).Return(author, nil)
@@ -406,7 +466,12 @@ func TestCreatePR_AssignReviewerError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(false, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, authorID).Return(author, nil)
@@ -444,7 +509,12 @@ func TestCreatePR_GetActiveTeamMembersError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(false, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, authorID).Return(author, nil)
@@ -485,7 +555,12 @@ func TestCreatePR_GetPRByIDError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(false, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, authorID).Return(author, nil)
@@ -527,7 +602,12 @@ func TestCreatePR_GetPRByIDGenericError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().PRExists(ctx, prID).Return(false, nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, authorID).Return(author, nil)

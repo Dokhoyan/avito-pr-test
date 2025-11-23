@@ -3,21 +3,29 @@ package user_test
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Dokhoyan/avito-pr-test/internal/http-server/handlers/testutil"
 	userhandler "github.com/Dokhoyan/avito-pr-test/internal/http-server/handlers/user"
+	"github.com/Dokhoyan/avito-pr-test/internal/logger"
 	"github.com/Dokhoyan/avito-pr-test/internal/model"
 	"github.com/Dokhoyan/avito-pr-test/internal/service"
 	servicemocks "github.com/Dokhoyan/avito-pr-test/internal/service/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func init() {
-	testutil.InitTestLogger()
+	core := zapcore.NewCore(
+		zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
+		zapcore.AddSync(io.Discard),
+		zapcore.DebugLevel,
+	)
+	logger.Init(core)
 }
 
 func TestSetUserStatus_Success(t *testing.T) {
@@ -97,5 +105,29 @@ func TestSetUserStatus_UserNotFound(t *testing.T) {
 
 	res := w.Result()
 	assert.Equal(t, http.StatusNotFound, res.StatusCode)
+	mockService.AssertExpectations(t)
+}
+
+func TestSetUserStatus_InternalError(t *testing.T) {
+	userID := "user1"
+	isActive := true
+
+	mockService := servicemocks.NewMockUserService(t)
+	mockService.EXPECT().UpdateUserStatus(mock.Anything, userID, isActive).Return(nil, assert.AnError)
+
+	handler := userhandler.NewImplementation(mockService)
+
+	reqBody := map[string]interface{}{
+		"user_id":   userID,
+		"is_active": isActive,
+	}
+	body, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(http.MethodPost, "/users/setIsActive", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+
+	handler.SetUserStatus(w, req)
+
+	res := w.Result()
+	assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
 	mockService.AssertExpectations(t)
 }

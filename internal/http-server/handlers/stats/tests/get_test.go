@@ -1,20 +1,28 @@
 package stats_test
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	statshandler "github.com/Dokhoyan/avito-pr-test/internal/http-server/handlers/stats"
-	"github.com/Dokhoyan/avito-pr-test/internal/http-server/handlers/testutil"
+	"github.com/Dokhoyan/avito-pr-test/internal/logger"
 	"github.com/Dokhoyan/avito-pr-test/internal/model"
 	servicemocks "github.com/Dokhoyan/avito-pr-test/internal/service/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func init() {
-	testutil.InitTestLogger()
+	core := zapcore.NewCore(
+		zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
+		zapcore.AddSync(io.Discard),
+		zapcore.DebugLevel,
+	)
+	logger.Init(core)
 }
 
 func TestGetStats_Success(t *testing.T) {
@@ -54,4 +62,20 @@ func TestGetStats_InvalidMethod(t *testing.T) {
 
 	res := w.Result()
 	assert.Equal(t, http.StatusMethodNotAllowed, res.StatusCode)
+}
+
+func TestGetStats_InternalError(t *testing.T) {
+	mockService := servicemocks.NewMockStatsService(t)
+	mockService.EXPECT().GetStats(mock.Anything).Return(nil, assert.AnError)
+
+	handler := statshandler.NewImplementation(mockService)
+
+	req := httptest.NewRequest(http.MethodGet, "/stats", nil)
+	w := httptest.NewRecorder()
+
+	handler.GetStats(w, req)
+
+	res := w.Result()
+	assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
+	mockService.AssertExpectations(t)
 }

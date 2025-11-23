@@ -7,9 +7,10 @@ import (
 
 	"github.com/Dokhoyan/avito-pr-test/internal/model"
 	repomocks "github.com/Dokhoyan/avito-pr-test/internal/repository/mocks"
+	servicemocks "github.com/Dokhoyan/avito-pr-test/internal/service/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service/stats"
-	"github.com/Dokhoyan/avito-pr-test/internal/service/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestGetStats_Success(t *testing.T) {
@@ -37,7 +38,12 @@ func TestGetStats_Success(t *testing.T) {
 	}
 
 	mockStatsRepo := repomocks.NewMockStatsRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockStatsRepo.EXPECT().GetTeamsCount(ctx).Return(2, nil)
 	mockStatsRepo.EXPECT().GetUsersStats(ctx).Return(usersStats, nil)
@@ -63,7 +69,12 @@ func TestGetStats_GetTeamsCountError(t *testing.T) {
 	ctx := context.Background()
 
 	mockStatsRepo := repomocks.NewMockStatsRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockStatsRepo.EXPECT().GetTeamsCount(ctx).Return(0, errors.New("database error"))
 
@@ -79,7 +90,12 @@ func TestGetStats_GetUsersStatsError(t *testing.T) {
 	ctx := context.Background()
 
 	mockStatsRepo := repomocks.NewMockStatsRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockStatsRepo.EXPECT().GetTeamsCount(ctx).Return(2, nil)
 	mockStatsRepo.EXPECT().GetUsersStats(ctx).Return(nil, errors.New("database error"))
@@ -101,7 +117,12 @@ func TestGetStats_GetPRStatsError(t *testing.T) {
 	}
 
 	mockStatsRepo := repomocks.NewMockStatsRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockStatsRepo.EXPECT().GetTeamsCount(ctx).Return(2, nil)
 	mockStatsRepo.EXPECT().GetUsersStats(ctx).Return(usersStats, nil)
@@ -130,7 +151,12 @@ func TestGetStats_GetAssignmentsCountError(t *testing.T) {
 	}
 
 	mockStatsRepo := repomocks.NewMockStatsRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockStatsRepo.EXPECT().GetTeamsCount(ctx).Return(2, nil)
 	mockStatsRepo.EXPECT().GetUsersStats(ctx).Return(usersStats, nil)

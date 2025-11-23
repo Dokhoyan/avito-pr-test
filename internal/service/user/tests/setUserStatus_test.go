@@ -9,9 +9,10 @@ import (
 	"github.com/Dokhoyan/avito-pr-test/internal/repository"
 	repomocks "github.com/Dokhoyan/avito-pr-test/internal/repository/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service"
-	"github.com/Dokhoyan/avito-pr-test/internal/service/testutil"
+	servicemocks "github.com/Dokhoyan/avito-pr-test/internal/service/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service/user"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestUpdateUserStatus_Success(t *testing.T) {
@@ -26,7 +27,12 @@ func TestUpdateUserStatus_Success(t *testing.T) {
 	}
 
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockUserRepo.EXPECT().UpdateIsActiveStatus(ctx, userID, isActive).Return(nil)
 	mockUserRepo.EXPECT().GetUserByID(ctx, userID).Return(expectedUser, nil)
@@ -47,7 +53,12 @@ func TestUpdateUserStatus_UserNotFound(t *testing.T) {
 	isActive := true
 
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockUserRepo.EXPECT().UpdateIsActiveStatus(ctx, userID, isActive).Return(repository.ErrUserNotFound)
 	// GetUserByID is called after transaction, but since transaction returns error, it shouldn't be called
@@ -69,7 +80,12 @@ func TestUpdateUserStatus_EmptyUserID(t *testing.T) {
 	isActive := true
 
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	svc := user.NewServiceWithTrManager(mockUserRepo, mockTrManager)
 	result, err := svc.UpdateUserStatus(ctx, "", isActive)
@@ -85,7 +101,12 @@ func TestUpdateUserStatus_RepositoryError(t *testing.T) {
 	isActive := true
 
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockUserRepo.EXPECT().UpdateIsActiveStatus(ctx, userID, isActive).Return(errors.New("database error"))
 	// GetUserByID is called after transaction, but since transaction returns error, it shouldn't be called
@@ -99,5 +120,30 @@ func TestUpdateUserStatus_RepositoryError(t *testing.T) {
 	assert.Error(t, err)
 	assert.Nil(t, result)
 	assert.Contains(t, err.Error(), "failed to update user status")
+	mockUserRepo.AssertExpectations(t)
+}
+
+func TestUpdateUserStatus_GetUserByIDError(t *testing.T) {
+	ctx := context.Background()
+	userID := "user1"
+	isActive := true
+
+	mockUserRepo := repomocks.NewMockUserRepository(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
+
+	mockUserRepo.EXPECT().UpdateIsActiveStatus(ctx, userID, isActive).Return(nil)
+	mockUserRepo.EXPECT().GetUserByID(ctx, userID).Return(nil, errors.New("database error"))
+
+	svc := user.NewServiceWithTrManager(mockUserRepo, mockTrManager)
+	result, err := svc.UpdateUserStatus(ctx, userID, isActive)
+
+	assert.Error(t, err)
+	assert.Nil(t, result)
+	assert.Contains(t, err.Error(), "failed to get user by ID")
 	mockUserRepo.AssertExpectations(t)
 }
