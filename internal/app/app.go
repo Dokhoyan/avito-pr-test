@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"sync"
 	"time"
 
 	"github.com/Dokhoyan/avito-pr-test/internal/config"
@@ -49,27 +48,36 @@ func NewApp(ctx context.Context) (*App, error) {
 	return a, nil
 }
 
-func (a *App) Run() error {
+func (a *App) Run(ctx context.Context) error {
 	defer func() {
 		closer.CloseAll()
 		closer.Wait()
 	}()
 
-	wg := sync.WaitGroup{}
-	wg.Add(1)
+	serverErrChan := make(chan error, 1)
 
 	go func() {
-		defer wg.Done()
-
 		err := a.runHTTPServer()
-		if err != nil {
-			log.Fatalf("failed to run HTTP server: %v", err)
+		if err != nil && err != http.ErrServerClosed {
+			serverErrChan <- err
 		}
 	}()
 
-	wg.Wait()
+	select {
+	case <-ctx.Done():
+		logger.Info("shutting down server...")
+		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer shutdownCancel()
 
-	return nil
+		if err := a.httpServer.Shutdown(shutdownCtx); err != nil {
+			logger.Error("server shutdown error", zap.Error(err))
+			return err
+		}
+		logger.Info("server stopped")
+		return nil
+	case err := <-serverErrChan:
+		return err
+	}
 }
 
 func (a *App) initDeps(ctx context.Context) error {
@@ -109,19 +117,14 @@ func (a *App) initServiceProvider(_ context.Context) error {
 func (a *App) initHTTPServer(ctx context.Context) error {
 	mux := http.NewServeMux()
 
-	// Регистрация всех handlers
 	a.serviceProvider.UserImpl(ctx).RegisterRoutes(mux)
 	a.serviceProvider.TeamImpl(ctx).RegisterRoutes(mux)
 	a.serviceProvider.PRImpl(ctx).RegisterRoutes(mux)
 	a.serviceProvider.StatsImpl(ctx).RegisterRoutes(mux)
 
-	// Применение middleware (порядок важен - последний добавленный выполняется первым)
 	var handler http.Handler = mux
-
-	// Middleware для логирования запросов
 	handler = middleware.RequestLogger(handler)
 
-	// Создание HTTP сервера с конфигурацией
 	httpConfig := a.serviceProvider.HTTPConfig()
 	a.httpServer = &http.Server{
 		Addr:              httpConfig.Address(),
@@ -142,12 +145,10 @@ func (a *App) runHTTPServer() error {
 	log.Printf("HTTP server is running on %s", a.serviceProvider.HTTPConfig().Address())
 	logger.Info("starting server",
 		zap.String("addr", a.serviceProvider.HTTPConfig().Address()))
-	//zap.String("timeout", a.serviceProvider.Timeout.Server.String()))
 	err := a.httpServer.ListenAndServe()
-	if err != nil {
+	if err != nil && err != http.ErrServerClosed {
 		return err
 	}
-
 	return nil
 }
 
@@ -156,7 +157,7 @@ func (a *App) getCore(level zap.AtomicLevel) zapcore.Core {
 
 	file := zapcore.AddSync(&lumberjack.Logger{
 		Filename:   "logs/app.log",
-		MaxSize:    loggerMaxSize, //mb
+		MaxSize:    loggerMaxSize,
 		MaxBackups: loggerMaxBackups,
 		MaxAge:     loggerMaxAge,
 		Compress:   false,
@@ -179,7 +180,6 @@ func (a *App) getCore(level zap.AtomicLevel) zapcore.Core {
 }
 
 func (a *App) getLevel() zap.AtomicLevel {
-
 	var level zapcore.Level
 
 	if err := level.Set(*logLevel); err != nil {
