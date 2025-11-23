@@ -28,9 +28,14 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /bin/main ./cmd/http-server
 # STAGE 2. FINAL STAGE
 #######################################
 
-FROM scratch AS final
+FROM alpine:3.13 AS final
+
+RUN apk --no-cache add ca-certificates
 
 WORKDIR /
+
+# Создаем директорию для логов
+RUN mkdir -p /logs && chmod 777 /logs
 
 COPY --from=build /bin/main /main
 

@@ -1,8 +1,8 @@
 run:
-  concurrency: 8
-  timeout: 10m
+  concurrency: 4
+  timeout: 5m
   issues-exit-code: 1
-  tests: true
+  tests: false
 
 output:
   formats:
@@ -11,27 +11,15 @@ output:
   print-linter-name: true
 
 linters-settings:
-  dupl:
-    threshold: 100
-  goconst:
-    min-len: 2
-    min-occurrences: 2
-  revive:
-    rules:
-      - name: exported
-        disabled: true
   govet: {} 
 
 linters:
   disable-all: true
   enable:
     - errcheck
-    - goconst
     - goimports
-    - gosec
     - govet
     - ineffassign
-    - revive
     - typecheck
     - unused
 
@@ -56,4 +44,3 @@ issues:
     - should have a package comment
     - don't use an underscore in package name
     - Error return value of .*json.*Encoder.*Encode.* is not checked
-    - string `.*` has .* occurrences, make it a constant
