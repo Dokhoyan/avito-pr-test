@@ -3,4 +3,5 @@
 /logs
 .DS_Store
 .bin
+bin/
 cover.out
