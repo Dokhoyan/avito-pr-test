@@ -3,21 +3,29 @@ package pr_test
 import (
 	"bytes"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	prhandler "github.com/Dokhoyan/avito-pr-test/internal/http-server/handlers/pr"
-	"github.com/Dokhoyan/avito-pr-test/internal/http-server/handlers/testutil"
+	"github.com/Dokhoyan/avito-pr-test/internal/logger"
 	"github.com/Dokhoyan/avito-pr-test/internal/model"
 	"github.com/Dokhoyan/avito-pr-test/internal/service"
 	servicemocks "github.com/Dokhoyan/avito-pr-test/internal/service/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func init() {
-	testutil.InitTestLogger()
+	core := zapcore.NewCore(
+		zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
+		zapcore.AddSync(io.Discard),
+		zapcore.DebugLevel,
+	)
+	logger.Init(core)
 }
 
 func TestReassignPR_Success(t *testing.T) {
@@ -109,6 +117,126 @@ func TestReassignPR_NoReviewers(t *testing.T) {
 
 	mockService := servicemocks.NewMockPRService(t)
 	mockService.EXPECT().ReassignReviewer(mock.Anything, prID, oldReviewerID).Return(nil, "", service.ErrNoReviewers)
+
+	handler := prhandler.NewImplementation(mockService)
+
+	reqBody := map[string]interface{}{
+		"pull_request_id": prID,
+		"old_reviewer_id": oldReviewerID,
+	}
+	body, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(http.MethodPost, "/pullRequest/reassign", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+
+	handler.Reassign(w, req)
+
+	res := w.Result()
+	assert.Equal(t, http.StatusConflict, res.StatusCode)
+	mockService.AssertExpectations(t)
+}
+
+func TestReassignPR_InternalError(t *testing.T) {
+	prID := "pr1"
+	oldReviewerID := "reviewer1"
+
+	mockService := servicemocks.NewMockPRService(t)
+	mockService.EXPECT().ReassignReviewer(mock.Anything, prID, oldReviewerID).Return(nil, "", assert.AnError)
+
+	handler := prhandler.NewImplementation(mockService)
+
+	reqBody := map[string]interface{}{
+		"pull_request_id": prID,
+		"old_reviewer_id": oldReviewerID,
+	}
+	body, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(http.MethodPost, "/pullRequest/reassign", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+
+	handler.Reassign(w, req)
+
+	res := w.Result()
+	assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
+	mockService.AssertExpectations(t)
+}
+
+func TestReassignPR_UserNotFound(t *testing.T) {
+	prID := "pr1"
+	oldReviewerID := "reviewer1"
+
+	mockService := servicemocks.NewMockPRService(t)
+	mockService.EXPECT().ReassignReviewer(mock.Anything, prID, oldReviewerID).Return(nil, "", service.ErrUserNotFound)
+
+	handler := prhandler.NewImplementation(mockService)
+
+	reqBody := map[string]interface{}{
+		"pull_request_id": prID,
+		"old_reviewer_id": oldReviewerID,
+	}
+	body, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(http.MethodPost, "/pullRequest/reassign", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+
+	handler.Reassign(w, req)
+
+	res := w.Result()
+	assert.Equal(t, http.StatusNotFound, res.StatusCode)
+	mockService.AssertExpectations(t)
+}
+
+func TestReassignPR_PRMerged(t *testing.T) {
+	prID := "pr1"
+	oldReviewerID := "reviewer1"
+
+	mockService := servicemocks.NewMockPRService(t)
+	mockService.EXPECT().ReassignReviewer(mock.Anything, prID, oldReviewerID).Return(nil, "", service.ErrPRMerged)
+
+	handler := prhandler.NewImplementation(mockService)
+
+	reqBody := map[string]interface{}{
+		"pull_request_id": prID,
+		"old_reviewer_id": oldReviewerID,
+	}
+	body, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(http.MethodPost, "/pullRequest/reassign", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+
+	handler.Reassign(w, req)
+
+	res := w.Result()
+	assert.Equal(t, http.StatusConflict, res.StatusCode)
+	mockService.AssertExpectations(t)
+}
+
+func TestReassignPR_NotAssigned(t *testing.T) {
+	prID := "pr1"
+	oldReviewerID := "reviewer1"
+
+	mockService := servicemocks.NewMockPRService(t)
+	mockService.EXPECT().ReassignReviewer(mock.Anything, prID, oldReviewerID).Return(nil, "", service.ErrNotAssigned)
+
+	handler := prhandler.NewImplementation(mockService)
+
+	reqBody := map[string]interface{}{
+		"pull_request_id": prID,
+		"old_reviewer_id": oldReviewerID,
+	}
+	body, _ := json.Marshal(reqBody)
+	req := httptest.NewRequest(http.MethodPost, "/pullRequest/reassign", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+
+	handler.Reassign(w, req)
+
+	res := w.Result()
+	assert.Equal(t, http.StatusConflict, res.StatusCode)
+	mockService.AssertExpectations(t)
+}
+
+func TestReassignPR_NoCandidate(t *testing.T) {
+	prID := "pr1"
+	oldReviewerID := "reviewer1"
+
+	mockService := servicemocks.NewMockPRService(t)
+	mockService.EXPECT().ReassignReviewer(mock.Anything, prID, oldReviewerID).Return(nil, "", service.ErrNoCandidate)
 
 	handler := prhandler.NewImplementation(mockService)
 

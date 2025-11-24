@@ -11,7 +11,33 @@ output:
   print-linter-name: true
 
 linters-settings:
-  govet: {} 
+  govet: {}
+  gocyclo:
+    min-complexity: 25
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - dupImport
+      - ifElseChain
+      - octalLiteral
+      - whyNoLint
+      - wrapperFunc
+  revive:
+    rules:
+      - name: exported
+        disabled: true
+      - name: var-naming
+        severity: warning
+      - name: package-comments
+        disabled: true
+  gosec:
+    severity: medium
+    confidence: medium 
 
 linters:
   disable-all: true
@@ -20,7 +46,17 @@ linters:
     - goimports
     - govet
     - ineffassign
+    - typecheck
     - unused
+    - staticcheck
+    - gosec
+    - gocritic
+    - revive
+    - errname
+    - goconst
+    - misspell
+    - unconvert
+    - gocyclo
 
 issues:
   exclude-use-default: false
@@ -36,6 +72,7 @@ issues:
     - .cache
     - internal/repository/mocks
     - internal/service/mocks
+    - loadtest
   exclude:
     - G104
     - G112
@@ -43,3 +80,11 @@ issues:
     - should have a package comment
     - don't use an underscore in package name
     - Error return value of .*json.*Encoder.*Encode.* is not checked
+    - exported .* should have comment
+    - exported type .* should have comment
+    - exported function .* should have comment
+    - exported method .* should have comment
+    - exported var .* should have comment
+    - exported const .* should have comment
+    - exitAfterDefer
+    - SA1029

@@ -9,9 +9,10 @@ import (
 	"github.com/Dokhoyan/avito-pr-test/internal/repository"
 	repomocks "github.com/Dokhoyan/avito-pr-test/internal/repository/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service"
+	servicemocks "github.com/Dokhoyan/avito-pr-test/internal/service/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service/team"
-	"github.com/Dokhoyan/avito-pr-test/internal/service/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestGetTeam_Success(t *testing.T) {
@@ -26,7 +27,12 @@ func TestGetTeam_Success(t *testing.T) {
 
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockTeamRepo.EXPECT().GetTeamWithMembers(ctx, teamName).Return(expectedTeam, nil)
 
@@ -46,7 +52,12 @@ func TestGetTeam_NotFound(t *testing.T) {
 
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockTeamRepo.EXPECT().GetTeamWithMembers(ctx, teamName).Return(nil, repository.ErrTeamNotFound)
 
@@ -64,7 +75,12 @@ func TestGetTeam_EmptyTeamName(t *testing.T) {
 
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	svc := team.NewServiceWithTrManager(mockTeamRepo, mockUserRepo, mockTrManager)
 	result, err := svc.GetTeam(ctx, "")
@@ -80,7 +96,12 @@ func TestGetTeam_RepositoryError(t *testing.T) {
 
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockTeamRepo.EXPECT().GetTeamWithMembers(ctx, teamName).Return(nil, errors.New("database error"))
 

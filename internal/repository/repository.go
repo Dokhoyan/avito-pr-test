@@ -14,12 +14,14 @@ var (
 	ErrPRNotFound   = errors.New("PR not found")
 )
 
+// TeamRepository определяет методы для доступа к данным команд
 type TeamRepository interface {
 	CreateTeam(ctx context.Context, teamName string) error
 	TeamExists(ctx context.Context, name string) (bool, error)
 	GetTeamWithMembers(ctx context.Context, name string) (*model.Team, error)
 }
 
+// UserRepository определяет методы для доступа к данным пользователей
 type UserRepository interface {
 	CreateOrUpdateUser(ctx context.Context, user model.TeamMember, teamID string) error
 	UpdateIsActiveStatus(ctx context.Context, userID string, isActive bool) error
@@ -28,6 +30,7 @@ type UserRepository interface {
 	GetUserReviews(ctx context.Context, userID string) ([]*model.PullRequestShort, error)
 }
 
+// PRRepository определяет методы для доступа к данным pull request
 type PRRepository interface {
 	CreatePR(ctx context.Context, pr *model.PullRequest) error
 	PRExists(ctx context.Context, prID string) (bool, error)
@@ -37,6 +40,7 @@ type PRRepository interface {
 	RemoveReviewer(ctx context.Context, prID, userID string) error
 }
 
+// StatsRepository определяет методы для доступа к статистическим данным
 type StatsRepository interface {
 	GetTeamsCount(ctx context.Context) (int, error)
 	GetUsersStats(ctx context.Context) (*model.UsersStats, error)

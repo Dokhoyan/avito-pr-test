@@ -8,9 +8,10 @@ import (
 	"github.com/Dokhoyan/avito-pr-test/internal/model"
 	repomocks "github.com/Dokhoyan/avito-pr-test/internal/repository/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service"
+	servicemocks "github.com/Dokhoyan/avito-pr-test/internal/service/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service/team"
-	"github.com/Dokhoyan/avito-pr-test/internal/service/testutil"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestCreateTeamWithMembers_Success(t *testing.T) {
@@ -23,7 +24,12 @@ func TestCreateTeamWithMembers_Success(t *testing.T) {
 
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockTeamRepo.EXPECT().TeamExists(ctx, teamName).Return(false, nil)
 	mockTeamRepo.EXPECT().CreateTeam(ctx, teamName).Return(nil)
@@ -56,7 +62,12 @@ func TestCreateTeamWithMembers_TeamExists(t *testing.T) {
 
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockTeamRepo.EXPECT().TeamExists(ctx, teamName).Return(true, nil)
 	// GetTeamWithMembers is called after transaction, but since transaction returns error, it shouldn't be called
@@ -81,7 +92,12 @@ func TestCreateTeamWithMembers_EmptyTeamName(t *testing.T) {
 
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	svc := team.NewServiceWithTrManager(mockTeamRepo, mockUserRepo, mockTrManager)
 	result, err := svc.CreateTeamWithMembers(ctx, "", members)
@@ -97,7 +113,12 @@ func TestCreateTeamWithMembers_EmptyMembers(t *testing.T) {
 
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	svc := team.NewServiceWithTrManager(mockTeamRepo, mockUserRepo, mockTrManager)
 	result, err := svc.CreateTeamWithMembers(ctx, teamName, []model.TeamMember{})
@@ -116,7 +137,12 @@ func TestCreateTeamWithMembers_InvalidMember(t *testing.T) {
 
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockTeamRepo.EXPECT().TeamExists(ctx, teamName).Return(false, nil)
 	mockTeamRepo.EXPECT().CreateTeam(ctx, teamName).Return(nil)
@@ -143,7 +169,12 @@ func TestCreateTeamWithMembers_TeamExistsError(t *testing.T) {
 
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockTeamRepo.EXPECT().TeamExists(ctx, teamName).Return(false, errors.New("database error"))
 	// GetTeamWithMembers is called after transaction, but since transaction returns error, it shouldn't be called
@@ -168,7 +199,12 @@ func TestCreateTeamWithMembers_CreateTeamError(t *testing.T) {
 
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockTeamRepo.EXPECT().TeamExists(ctx, teamName).Return(false, nil)
 	mockTeamRepo.EXPECT().CreateTeam(ctx, teamName).Return(errors.New("database error"))
@@ -192,7 +228,12 @@ func TestCreateTeamWithMembers_CreateUserError(t *testing.T) {
 
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockTeamRepo.EXPECT().TeamExists(ctx, teamName).Return(false, nil)
 	mockTeamRepo.EXPECT().CreateTeam(ctx, teamName).Return(nil)
@@ -218,7 +259,12 @@ func TestCreateTeamWithMembers_GetTeamError(t *testing.T) {
 
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockTeamRepo.EXPECT().TeamExists(ctx, teamName).Return(false, nil)
 	mockTeamRepo.EXPECT().CreateTeam(ctx, teamName).Return(nil)

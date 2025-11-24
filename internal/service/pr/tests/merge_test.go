@@ -10,8 +10,8 @@ import (
 	"github.com/Dokhoyan/avito-pr-test/internal/repository"
 	repomocks "github.com/Dokhoyan/avito-pr-test/internal/repository/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service"
+	servicemocks "github.com/Dokhoyan/avito-pr-test/internal/service/mocks"
 	"github.com/Dokhoyan/avito-pr-test/internal/service/pr"
-	"github.com/Dokhoyan/avito-pr-test/internal/service/testutil"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -40,7 +40,12 @@ func TestMergePR_Success(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	// First GetPRByID call is inside transaction
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(existingPR, nil).Once()
@@ -73,7 +78,12 @@ func TestMergePR_AlreadyMerged(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(mergedPR, nil)
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(mergedPR, nil)
@@ -94,7 +104,12 @@ func TestMergePR_NotFound(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(nil, repository.ErrPRNotFound)
 
@@ -113,7 +128,12 @@ func TestMergePR_EmptyPRID(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	svc := pr.NewServiceWithTrManager(mockTeamRepo, mockUserRepo, mockPRRepo, mockTrManager)
 	result, err := svc.MergePR(ctx, "")
@@ -130,7 +150,12 @@ func TestMergePR_GetPRByIDError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(nil, errors.New("database error"))
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(nil, errors.New("pr not found")).Maybe()
@@ -159,7 +184,12 @@ func TestMergePR_MarkPRAsMergedError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(existingPR, nil).Once()
 	mockPRRepo.EXPECT().MarkPRAsMerged(ctx, prID, model.PRStatusMerged, mock.AnythingOfType("time.Time")).Return(errors.New("database error")).Once()
@@ -189,7 +219,12 @@ func TestMergePR_GetPRAfterMergeError(t *testing.T) {
 	mockTeamRepo := repomocks.NewMockTeamRepository(t)
 	mockUserRepo := repomocks.NewMockUserRepository(t)
 	mockPRRepo := repomocks.NewMockPRRepository(t)
-	mockTrManager := testutil.NewTestTrManager(t)
+	mockTrManager := servicemocks.NewMockTrManager(t)
+	mockTrManager.EXPECT().Do(mock.Anything, mock.AnythingOfType("func(context.Context) error")).
+		RunAndReturn(func(ctx context.Context, fn func(context.Context) error) error {
+			return fn(ctx)
+		}).
+		Maybe()
 
 	mockPRRepo.EXPECT().GetPRByID(ctx, prID).Return(existingPR, nil).Once()
 	mockPRRepo.EXPECT().MarkPRAsMerged(ctx, prID, model.PRStatusMerged, mock.AnythingOfType("time.Time")).Return(nil).Once()

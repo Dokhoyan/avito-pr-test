@@ -11,10 +11,12 @@ import (
 	"go.uber.org/zap"
 )
 
+type contextKey string
+
 const (
-	requestIDContextKey = "requestID"
-	requestIDHeader     = "X-Request-ID"
-	requestIDField      = "request_id"
+	requestIDContextKey contextKey = "requestID"
+	requestIDHeader     string     = "X-Request-ID"
+	requestIDField      string     = "request_id"
 )
 
 type responseWriter struct {

@@ -1,21 +1,29 @@
 package user_test
 
 import (
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/Dokhoyan/avito-pr-test/internal/http-server/handlers/testutil"
 	userhandler "github.com/Dokhoyan/avito-pr-test/internal/http-server/handlers/user"
+	"github.com/Dokhoyan/avito-pr-test/internal/logger"
 	"github.com/Dokhoyan/avito-pr-test/internal/model"
 	"github.com/Dokhoyan/avito-pr-test/internal/service"
 	servicemocks "github.com/Dokhoyan/avito-pr-test/internal/service/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 func init() {
-	testutil.InitTestLogger()
+	core := zapcore.NewCore(
+		zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
+		zapcore.AddSync(io.Discard),
+		zapcore.DebugLevel,
+	)
+	logger.Init(core)
 }
 
 func TestGetUserReviews_Success(t *testing.T) {
@@ -86,5 +94,23 @@ func TestGetUserReviews_UserNotFound(t *testing.T) {
 
 	res := w.Result()
 	assert.Equal(t, http.StatusNotFound, res.StatusCode)
+	mockService.AssertExpectations(t)
+}
+
+func TestGetUserReviews_InternalError(t *testing.T) {
+	userID := "user1"
+
+	mockService := servicemocks.NewMockUserService(t)
+	mockService.EXPECT().GetUserReviews(mock.Anything, userID).Return(nil, assert.AnError)
+
+	handler := userhandler.NewImplementation(mockService)
+
+	req := httptest.NewRequest(http.MethodGet, "/users/getReview?user_id="+userID, nil)
+	w := httptest.NewRecorder()
+
+	handler.GetReview(w, req)
+
+	res := w.Result()
+	assert.Equal(t, http.StatusInternalServerError, res.StatusCode)
 	mockService.AssertExpectations(t)
 }
