@@ -100,7 +100,7 @@ make test
 - **HTTP сервер**: стандартная библиотека `net/http`
 - **ORM/Query Builder**: [Squirrel]
 - **PostgreSQL драйвер**: [pgx/v5]
-- **Транзакции**: [go-transaction-manager](https://github.com/avito-tech/go-transaction-manager)
+- **Транзакции**: [go-transaction-manager-avito-tech](https://github.com/avito-tech/go-transaction-manager)
 - **Логирование**: [zap] + [lumberjack]
 - **Тестирование**: [testify]
 - **Моки**: [mockery]
